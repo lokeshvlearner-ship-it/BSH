@@ -93,3 +93,8 @@ input:focus{border-color:#54aabc;box-shadow:0 0 0 3px #e1f1f4}
 /* Keep auth-only support links out of the authenticated dashboard. */
 .app-shell.admin-mode>.main-panel>.topbar{display:none}
 .sidebar-brand strong{white-space:nowrap}
+/* Preserve the off-canvas state when the preview is resized between desktop and mobile widths. */
+@media(max-width:800px){
+  .admin-sidebar.collapsed{transform:translateX(-100%)}
+  .admin-sidebar.open{transform:translateX(0)}
+}
