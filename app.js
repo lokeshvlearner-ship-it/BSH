@@ -46,7 +46,7 @@ function renderAdminDashboard(user){
   renderAdminPage('dashboard',user);
   $$('.side-link').forEach(link=>link.addEventListener('click',()=>{ $$('.side-link').forEach(item=>item.classList.remove('active'));link.classList.add('active');renderAdminPage(link.dataset.page,user);if(window.innerWidth<=800)$('#admin-sidebar').classList.remove('open'); }));
   $('#menu-toggle').addEventListener('click',()=>{const sidebar=$('#admin-sidebar');if(window.innerWidth<=800){sidebar.classList.remove('collapsed');sidebar.classList.toggle('open')}else{sidebar.classList.remove('open');sidebar.classList.toggle('collapsed')}});
-  window.addEventListener('resize',()=>{const sidebar=$('#admin-sidebar');if(!sidebar)return;if(window.innerWidth>800)sidebar.classList.remove('open');else if(sidebar.classList.contains('collapsed'))sidebar.classList.remove('collapsed')});
+  window.addEventListener('resize',()=>{const sidebar=$('#admin-sidebar');if(!sidebar)return;sidebar.classList.remove('open');sidebar.classList.add('collapsed')});
   $('#admin-user').addEventListener('click',()=>$('#user-menu').classList.toggle('hidden'));
   $('#logout').addEventListener('click',()=>{document.querySelector('.app-shell').classList.remove('admin-mode');dashView.classList.add('hidden');authView.classList.remove('hidden');showToast('You have been logged out')});
 }
