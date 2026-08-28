@@ -1,0 +1,107 @@
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+const seed = () => { if (!localStorage.getItem('enterprise_admins')) localStorage.setItem('enterprise_admins', JSON.stringify([])); if (!localStorage.getItem('enterprise_stores')) localStorage.setItem('enterprise_stores', JSON.stringify([])); };
+seed();
+let role = 'admin'; let mode = 'login';
+const authView = $('#auth-view'), dashView = $('#dashboard-view');
+function showToast(message) { const t=$('#toast'); t.textContent=message; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+function setMode(next) {
+  const previousMode = mode;
+  mode = role === 'store' ? 'login' : next;
+  $$('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.auth === mode);
+    t.classList.toggle('hidden', role === 'store' && t.dataset.auth === 'signup');
+  });
+  $('#name-field').classList.toggle('hidden', mode === 'login');
+  $('#confirm-field').classList.toggle('hidden', mode === 'login');
+  $('#submit-label').textContent = mode === 'signup' ? `Create ${role} account` : `Continue to ${role}`;
+  $('#switch-note').innerHTML = role === 'store' ? 'Store access is created by your admin.' : (mode === 'signup' ? `Already have an account? <button type="button" data-auth-switch="login">Log in here</button>` : '');
+  $('#form-error').textContent = '';
+
+  // Replay a directional slide every time the user switches between login and signup.
+  if (previousMode !== mode) {
+    const card = $('.auth-card');
+    card.classList.remove('slide-next', 'slide-previous');
+    void card.offsetWidth;
+    card.classList.add(mode === 'signup' ? 'slide-next' : 'slide-previous');
+  }
+}
+function setRole(next) { const previousRole=role; role=next; $$('.role-card').forEach(c=>c.classList.toggle('selected',c.dataset.role===role)); $('.selected-role-label').textContent=role[0].toUpperCase()+role.slice(1); setMode('login'); $('#auth-form').reset(); if(previousRole!==role){ const card=$('.auth-card'); card.classList.remove('slide-next','slide-previous'); void card.offsetWidth; card.classList.add(role==='store'?'slide-next':'slide-previous'); } }
+$$('.role-card').forEach(c=>c.addEventListener('click',()=>setRole(c.dataset.role)));
+$$('.tab').forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.auth)));
+document.addEventListener('click',e=>{const b=e.target.closest('[data-auth-switch]');if(b)setMode(b.dataset.auth)});
+$('#toggle-password').addEventListener('click',()=>{const p=$('#password');p.type=p.type==='password'?'text':'password';});
+function get(key){return JSON.parse(localStorage.getItem(key)||'[]')} function save(key,value){localStorage.setItem(key,JSON.stringify(value))}
+$('#auth-form').addEventListener('submit',e=>{e.preventDefault(); const email=$('#email').value.trim().toLowerCase(), password=$('#password').value; const error=$('#form-error'); if(!email||!email.includes('@')) return error.textContent='Please enter a valid work email.'; if(password.length<8)return error.textContent='Password must be at least 8 characters.'; if(mode==='signup'){if($('#name').value.trim().length<2)return error.textContent='Please enter your name.';if(password!==$('#confirm').value)return error.textContent='Passwords do not match.';const key=role==='admin'?'enterprise_admins':'enterprise_stores', users=get(key);if(users.some(u=>u.email===email))return error.textContent='An account with this email already exists.'; users.push({name:$('#name').value.trim(),email,password,createdAt:Date.now()});save(key,users);showToast('Account created — welcome to Enterprises Dashboard');openDashboard({name:$('#name').value.trim(),email},role)}else{const users=get(role==='admin'?'enterprise_admins':'enterprise_stores'),user=users.find(u=>u.email===email&&u.password===password);if(!user)return error.textContent='Email or password is incorrect.';showToast('Welcome back, '+user.name.split(' ')[0]);openDashboard(user,role)}});
+function openDashboard(user,currentRole){
+  document.querySelector('.app-shell').classList.add('admin-mode');
+  authView.classList.add('hidden');
+  dashView.classList.remove('hidden');
+  if(currentRole==='admin') renderAdminDashboard(user);
+  else renderStoreDashboard(user);
+}
+let shell=null;                       // reference to the currently mounted admin shell
+let shellNavBound=false;              // ensure document-level listeners attach only once
+
+function isMobileNav(){ return window.innerWidth<=800; }
+function openSidebar(){ if(!shell)return; shell.sidebar.classList.add('open'); shell.toggle.setAttribute('aria-expanded','true'); document.body.classList.add('nav-open'); }
+function closeSidebar(){ if(!shell)return; shell.sidebar.classList.remove('open'); shell.toggle.setAttribute('aria-expanded','false'); document.body.classList.remove('nav-open'); }
+function closeUserMenu(){ if(!shell)return; shell.userMenu.classList.add('hidden'); }
+
+// Document-level listeners attached once; they operate on the live `shell`.
+if(!shellNavBound){
+  shellNavBound=true;
+  document.addEventListener('click',(e)=>{
+    if(!shell)return;
+    const {sidebar,toggle,userMenu,backdrop}=shell;
+    // Tapping the backdrop closes the mobile menu.
+    if(e.target===backdrop) return closeSidebar();
+    // Tapping outside the open mobile sidebar closes it.
+    if(isMobileNav()&&sidebar.classList.contains('open')&&!sidebar.contains(e.target)&&!toggle.contains(e.target)) closeSidebar();
+    // Tapping outside the user menu closes it.
+    if(!userMenu.classList.contains('hidden')&&!userMenu.contains(e.target)&&!e.target.closest('#admin-user')) closeUserMenu();
+  });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeSidebar(); closeUserMenu(); } });
+}
+
+function renderAdminDashboard(user){
+  const stores=get('enterprise_stores');
+  dashView.innerHTML=`<div class="admin-layout"><div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div><aside class="admin-sidebar" id="admin-sidebar"><div class="sidebar-brand"><span class="brand-mark">ED</span><div class="sidebar-brand-copy"><strong>Enterprises</strong><small>Dashboard</small></div></div><nav class="side-nav" aria-label="Admin navigation"><span class="nav-label">WORKSPACE</span><button class="side-link active" data-page="dashboard"><span>▦</span> Dashboard</button><button class="side-link" data-page="quotations"><span>⌁</span> Quotations</button><button class="side-link" data-page="catalog"><span>◈</span> Product catalog</button><button class="side-link" data-page="stores"><span>⌂</span> Stores</button><span class="nav-label nav-label-spaced">SYSTEM</span><button class="side-link" data-page="settings"><span>⚙</span> Settings</button><button class="side-link" data-page="backup"><span>↥</span> Backup</button></nav><div class="sidebar-bottom"><span class="status-dot"></span> All systems operational</div></aside><div class="admin-content"><header class="admin-topbar"><button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu" aria-controls="admin-sidebar" aria-expanded="false"><span class="menu-icon"><span></span></span></button><div class="dashboard-brand"><span class="brand-mark">ED</span><strong>Enterprises Dashboard</strong></div><div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="breadcrumb-page">Dashboard</strong></div><div class="admin-user-wrap"><button class="admin-user" id="admin-user" aria-haspopup="true" aria-expanded="false"><span class="user-avatar">${user.name[0].toUpperCase()}</span><span class="user-copy"><strong>${user.name}</strong><small>Administrator</small></span><span class="user-chevron">⌄</span></button><div class="user-menu hidden" id="user-menu"><strong>${user.name}</strong><small>${user.email}</small><button id="logout">Log out ↗</button></div></div></header><main class="admin-main" id="admin-main"></main></div></div>`;
+
+  const sidebar=$('#admin-sidebar'), toggle=$('#menu-toggle'), backdrop=$('#nav-backdrop'),
+        userBtn=$('#admin-user'), userMenu=$('#user-menu');
+  shell={sidebar,toggle,backdrop,userBtn,userMenu};
+
+  renderAdminPage('dashboard',user);
+
+  // Nav links: switch page, close the mobile drawer, and auto-close the user dropdown.
+  $$('.side-link').forEach(link=>link.addEventListener('click',()=>{
+    $$('.side-link').forEach(item=>item.classList.remove('active'));
+    link.classList.add('active');
+    renderAdminPage(link.dataset.page,user);
+    closeSidebar();
+  }));
+
+  toggle.addEventListener('click',(e)=>{ e.stopPropagation();
+    if(isMobileNav()){ sidebar.classList.contains('open')?closeSidebar():openSidebar(); }
+    else { sidebar.classList.toggle('collapsed'); }
+  });
+
+  userBtn.addEventListener('click',(e)=>{ e.stopPropagation();
+    const opening=userMenu.classList.contains('hidden');
+    userMenu.classList.toggle('hidden');
+    userBtn.setAttribute('aria-expanded',opening?'true':'false');
+  });
+
+  $('#logout').addEventListener('click',()=>{ document.querySelector('.app-shell').classList.remove('admin-mode');dashView.classList.add('hidden');authView.classList.remove('hidden');showToast('You have been logged out'); closeSidebar(); });
+
+  // Keep the off-canvas drawer closed on resize up to desktop.
+  window.addEventListener('resize',()=>{ if(!isMobileNav()){ sidebar.classList.remove('open'); document.body.classList.remove('nav-open'); } });
+}
+function renderAdminPage(page,user){
+  const main=$('#admin-main'),stores=get('enterprise_stores');$('#breadcrumb-page').textContent=page==='catalog'?'Product catalog':page[0].toUpperCase()+page.slice(1);
+  if(page==='dashboard'){main.innerHTML=`<section class="admin-page"><div class="page-heading"><div><span class="eyebrow accent">ADMIN OVERVIEW</span><h2>Good morning, ${user.name.split(' ')[0]}.</h2><p>Here’s what’s happening across your business today.</p></div><button class="outline-button">+ New quotation</button></div><div class="stat-grid"><div class="stat-card"><span class="stat-icon green">◌</span><small>Total stores</small><strong>${stores.length}</strong><em>Across your network</em></div><div class="stat-card"><span class="stat-icon orange">⌁</span><small>Open quotations</small><strong>0</strong><em>Nothing needs attention</em></div><div class="stat-card"><span class="stat-icon purple">◈</span><small>Products</small><strong>0</strong><em>In your catalog</em></div><div class="stat-card"><span class="stat-icon blue">↗</span><small>Workspace health</small><strong>100%</strong><em>All systems operational</em></div></div><div class="admin-columns"><div class="admin-panel"><div class="panel-heading"><div><h3>Store network</h3><p>Your connected stores and their current status.</p></div><button class="text-button" data-page-link="stores">View all ↗</button></div><div id="store-list">${storeRows(stores)}</div><div class="add-store"><h3>Quick add a store</h3><p>Create store access with an email and a temporary password.</p><form id="store-form"><input id="store-name" placeholder="Store name" required><input id="store-email" type="email" placeholder="team@store.com" required><input id="store-pass" type="password" placeholder="Password (8+ chars)" required><button class="small-button">Add store</button></form></div></div><div class="admin-panel activity-panel"><div class="panel-heading"><div><h3>Recent activity</h3><p>Latest updates from your workspace.</p></div></div><div class="activity-empty"><span>✦</span><strong>You’re all caught up</strong><small>New activity will appear here.</small></div></div></div></section>`;$('#store-form').addEventListener('submit',addStore);const viewAll=$('[data-page-link="stores"]');if(viewAll)viewAll.addEventListener('click',()=>{$$('.side-link').forEach(i=>i.classList.toggle('active',i.dataset.page==='stores'));renderAdminPage('stores',user)});}else{const titles={quotations:['Quotations','Create, track and manage your customer quotations.'],catalog:['Product catalog','Keep your products, pricing and availability in one organized place.'],stores:['Stores','Manage the locations and teams connected to your enterprise.'],settings:['Settings','Configure your workspace preferences and account details.'],backup:['Backup','Keep your business data safe with scheduled workspace backups.']};const [title,description]=titles[page];main.innerHTML=`<section class="admin-page placeholder-page"><div class="page-heading"><div><span class="eyebrow accent">ADMIN WORKSPACE</span><h2>${title}</h2><p>${description}</p></div><button class="outline-button">Coming soon</button></div><div class="admin-panel placeholder-panel"><span class="placeholder-icon">${page==='settings'?'⚙':page==='backup'?'↥':page==='stores'?'⌂':'◈'}</span><h3>${title} is ready for your data</h3><p>This section is connected to your admin navigation. We can build out the full ${title.toLowerCase()} workflow next.</p></div></section>`}}
+function renderStoreDashboard(user){const stores=get('enterprise_stores');dashView.innerHTML=`<div class="dashboard"><div class="dash-header"><div><span class="eyebrow accent">STORE WORKSPACE</span><h2>${user.name.split(' ')[0]}'s workspace.</h2><p>Everything your team needs, in one place.</p></div><button class="logout" id="logout">Log out ↗</button></div><div class="dash-grid"><div class="panel"><h3>Today at a glance</h3><p>Welcome to your store dashboard. Your daily operations will appear here.</p><div class="metric">Ready</div><div class="metric-caption">store status</div></div><div class="panel"><h3>Signed in as</h3><div class="store-row"><div class="store-avatar">${user.name[0].toUpperCase()}</div><div><strong>${user.name}</strong><small>${user.email}</small></div><span class="badge">Active</span></div></div></div></div>`;$('#logout').addEventListener('click',()=>{document.querySelector('.app-shell').classList.remove('admin-mode');dashView.classList.add('hidden');authView.classList.remove('hidden');showToast('You have been logged out')})}
+function storeRows(stores){return stores.length?stores.map(s=>`<div class="store-row"><div class="store-avatar">${s.name[0].toUpperCase()}</div><div><strong>${s.name}</strong><small>${s.email}</small></div><span class="badge">Active</span></div>`).join(''):'<div class="empty">No stores yet. Add your first one below.</div>'}
+function addStore(e){e.preventDefault();const name=$('#store-name').value.trim(),email=$('#store-email').value.trim().toLowerCase(),password=$('#store-pass').value;const stores=get('enterprise_stores');if(password.length<8)return showToast('Store password needs 8+ characters');if(stores.some(s=>s.email===email))return showToast('That store email already exists');stores.push({name,email,password});save('enterprise_stores',stores);showToast('Store access created');const list=$('#store-list');list.innerHTML=storeRows(stores);e.target.reset()}
+setMode('login');
