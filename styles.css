@@ -7,3 +7,50 @@
 @keyframes formSlideNext{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
 @keyframes formSlidePrevious{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
 @media(prefers-reduced-motion:reduce){.auth-card.slide-next > :not(.auth-tabs),.auth-card.slide-previous > :not(.auth-tabs){animation:none}}
+/* Small-screen layout refinements */
+@media (max-width: 800px) {
+  .brand-panel { height: auto; min-height: 76px; padding: 18px 22px; }
+  .brand { font-size: 19px; letter-spacing: -1px; }
+  .main-panel { min-height: calc(100vh - 76px); padding: 18px 20px 36px; }
+  .auth-wrap { margin-top: 34px; }
+  .intro p { line-height: 1.55; margin-bottom: 22px; }
+  .role-card { min-height: 62px; padding: 12px 13px; }
+  .auth-card { padding-left: 18px; padding-right: 18px; }
+  .dashboard { margin: 32px auto 0; }
+  .dash-header { gap: 16px; }
+  .dash-header h2 { font-size: 30px; }
+  .dash-header .logout { align-self: flex-start; }
+  .add-store form { display: grid; grid-template-columns: 1fr 1fr; }
+  .add-store form input:first-child, .add-store form button { grid-column: 1 / -1; min-height: 40px; }
+  .add-store form input { min-width: 0; }
+}
+@media (max-width: 520px) {
+  .brand-panel { padding: 16px 18px; }
+  .brand { font-size: 17px; }
+  .brand-mark { width: 27px; height: 27px; font-size: 17px; }
+  .main-panel { padding: 14px 14px 30px; }
+  .topbar { min-height: 27px; }
+  .help { font-size: 10px; }
+  .auth-wrap { margin-top: 28px; }
+  .intro h2 { font-size: 34px; letter-spacing: -2px; }
+  .intro p { font-size: 12px; }
+  .role-text strong { font-size: 11px; }
+  .role-text small { font-size: 9px; }
+  .auth-card { border-radius: 12px; padding: 5px 15px 19px; }
+  .auth-tabs { gap: 18px; margin-bottom: 20px; }
+  .field { margin: 11px 0; }
+  .primary-button { min-height: 43px; }
+  .dashboard { margin-top: 28px; }
+  .dash-header h2 { font-size: 27px; letter-spacing: -1.5px; }
+  .dash-grid { gap: 12px; margin-top: 18px; }
+  .panel { padding: 17px; }
+  .add-store form { display: flex; flex-direction: column; }
+  .add-store form input, .add-store form button { width: 100%; min-height: 40px; }
+  .small-button { padding: 11px 14px; }
+}
+@media (max-width: 360px) {
+  .main-panel { padding-left: 10px; padding-right: 10px; }
+  .intro h2 { font-size: 31px; }
+  .auth-card { padding-left: 12px; padding-right: 12px; }
+  .help a { display: none; }
+}
