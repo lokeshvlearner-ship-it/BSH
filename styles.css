@@ -65,3 +65,9 @@
 .app-shell.admin-mode>.brand-panel{display:none}
 .app-shell.admin-mode>.main-panel{padding:0;min-height:100vh;background:#f7f9f6}
 @media(max-width:800px){.app-shell.admin-mode>.main-panel{padding:0}.app-shell.admin-mode .admin-main{min-width:0}}
+/* Desktop sidebar toggle */
+.admin-topbar .menu-toggle{display:block;border:0;background:#eef7f0;color:var(--green);border-radius:7px;width:34px;height:32px;font-size:16px;margin-right:14px;cursor:pointer;transition:.18s}
+.admin-topbar .menu-toggle:hover{background:var(--lime)}
+.admin-sidebar{transition:width .3s ease,flex-basis .3s ease,padding .3s ease,transform .28s ease}
+.admin-sidebar.collapsed{width:0;flex-basis:0;padding-left:0;padding-right:0;overflow:hidden}
+@media(max-width:800px){.admin-sidebar.collapsed{width:235px;flex-basis:auto;padding:28px 15px 20px;overflow:visible}.admin-topbar .menu-toggle{margin-right:13px}}
