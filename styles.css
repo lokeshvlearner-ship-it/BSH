@@ -116,3 +116,7 @@ h1 em{color:#93c5fd}.accent,.selected-role-label{color:#2563eb}
 .user-avatar,.store-avatar{background:#eaf1ff;color:#2563eb}.status-dot{background:#60a5fa}
 input:focus{border-color:#6b9cf6;box-shadow:0 0 0 3px #eaf1ff}
 .admin-page h2,.dash-header h2{font-weight:700;letter-spacing:-1.6px}.stat-card strong{font-weight:700}.admin-panel,.stat-card{box-shadow:0 1px 2px rgba(16,24,40,.03)}
+/* ED monogram mark */
+.brand-mark{width:36px;font-size:11px;letter-spacing:-.6px}
+.sidebar-brand .brand-mark{width:34px;font-size:10px}
+@media(max-width:800px){.brand-mark{width:32px;font-size:10px}.mobile-brand .brand-mark{width:29px;font-size:9px}}
