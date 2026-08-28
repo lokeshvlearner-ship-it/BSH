@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprises Dashboard · Retail operations, made simple</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=14" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="brand-panel">
+      <div class="brand"><span class="brand-mark">ED</span><span>Enterprises Dashboard</span></div>
+      <div class="brand-copy">
+        <span class="eyebrow">RETAIL COMMAND CENTER</span>
+        <h1>Make every<br><em>store</em> count.</h1>
+        <p>One calm, clear place to run your retail network — from your first location to your hundredth.</p>
+      </div>
+      <div class="brand-footer"><span class="status-dot"></span> All systems operational <span class="footer-separator">·</span> v2.4.0</div>
+    </aside>
+
+    <main class="main-panel">
+      <div class="topbar"><div class="mobile-brand"><span class="brand-mark">ED</span> Enterprises Dashboard</div><div class="help">Need help? <a href="mailto:hello@enterprises.app">Talk to us <span>↗</span></a></div></div>
+      <section id="auth-view" class="view">
+        <div class="auth-wrap">
+          <div class="intro">
+            <span class="eyebrow accent">WELCOME TO ENTERPRISES DASHBOARD</span>
+            <h2>Let’s get you<br><span>inside.</span></h2>
+            <p>Choose how you want to continue. Your team’s workspace is waiting.</p>
+          </div>
+          <div class="role-grid">
+            <button class="role-card selected" data-role="admin" type="button">
+              <span class="role-icon admin-icon">✦</span><span class="role-text"><strong>I'm an admin</strong><small>Manage your stores & team</small></span><span class="arrow">→</span>
+            </button>
+            <button class="role-card" data-role="store" type="button">
+              <span class="role-icon store-icon">▦</span><span class="role-text"><strong>I'm a store team</strong><small>Access your store workspace</small></span><span class="arrow">→</span>
+            </button>
+          </div>
+          <div class="auth-card">
+            <div class="auth-tabs"><button class="tab active" data-auth="login" type="button">Log in</button><button class="tab" data-auth="signup" type="button">Create account</button></div>
+            <div class="form-heading"><span class="selected-role-label">Admin</span> access <span class="lock">⌑</span></div>
+            <form id="auth-form" novalidate>
+              <div id="name-field" class="field hidden"><label for="name">Your name</label><input id="name" type="text" placeholder="e.g. Alex Morgan" autocomplete="name"></div>
+              <div class="field"><label for="email">Work email</label><input id="email" type="email" placeholder="you@company.com" autocomplete="email" required></div>
+              <div class="field"><label for="password">Password</label><div class="password-wrap"><input id="password" type="password" placeholder="At least 8 characters" autocomplete="current-password" required><button type="button" id="toggle-password" aria-label="Show password">◉</button></div></div>
+              <div id="confirm-field" class="field hidden"><label for="confirm">Confirm password</label><input id="confirm" type="password" placeholder="Repeat your password"></div>
+              <div id="form-error" class="form-error" role="alert"></div>
+              <button class="primary-button" type="submit"><span id="submit-label">Continue to admin</span><span>↗</span></button>
+            </form>
+            <p class="terms">By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+          </div>
+          <p class="switch-note" id="switch-note"></p>
+        </div>
+      </section>
+
+      <section id="dashboard-view" class="view hidden"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js?v=14"></script>
+</body>
+</html>
