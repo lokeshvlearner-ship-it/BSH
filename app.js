@@ -15,7 +15,7 @@ function setMode(next) {
   $('#name-field').classList.toggle('hidden', mode === 'login');
   $('#confirm-field').classList.toggle('hidden', mode === 'login');
   $('#submit-label').textContent = mode === 'signup' ? `Create ${role} account` : `Continue to ${role}`;
-  $('#switch-note').innerHTML = role === 'store' ? 'Store access is created by your admin.' : (mode === 'signup' ? `Already have an account? <button type="button" data-auth-switch="login">Log in instead</button>` : `New here? <button type="button" data-auth-switch="signup">Create a ${role} account</button>`);
+  $('#switch-note').innerHTML = role === 'store' ? 'Store access is created by your admin.' : (mode === 'signup' ? `Already have an account? <button type="button" data-auth-switch="login">Log in here</button>` : `New here? <button type="button" data-auth-switch="signup">Create a ${role} account</button>`);
   $('#form-error').textContent = '';
 
   // Replay a directional slide every time the user switches between login and signup.
