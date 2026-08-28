@@ -26,7 +26,7 @@ function setMode(next) {
     card.classList.add(mode === 'signup' ? 'slide-next' : 'slide-previous');
   }
 }
-function setRole(next) { role=next; $$('.role-card').forEach(c=>c.classList.toggle('selected',c.dataset.role===role)); $('.selected-role-label').textContent=role[0].toUpperCase()+role.slice(1); setMode('login'); $('#auth-form').reset(); }
+function setRole(next) { const previousRole=role; role=next; $$('.role-card').forEach(c=>c.classList.toggle('selected',c.dataset.role===role)); $('.selected-role-label').textContent=role[0].toUpperCase()+role.slice(1); setMode('login'); $('#auth-form').reset(); if(previousRole!==role){ const card=$('.auth-card'); card.classList.remove('slide-next','slide-previous'); void card.offsetWidth; card.classList.add(role==='store'?'slide-next':'slide-previous'); } }
 $$('.role-card').forEach(c=>c.addEventListener('click',()=>setRole(c.dataset.role)));
 $$('.tab').forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.auth)));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-auth-switch]');if(b)setMode(b.dataset.auth)});
