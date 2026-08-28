@@ -5,7 +5,27 @@ seed();
 let role = 'admin'; let mode = 'login';
 const authView = $('#auth-view'), dashView = $('#dashboard-view');
 function showToast(message) { const t=$('#toast'); t.textContent=message; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
-function setMode(next) { mode=(role==='store'?'login':next); $$('.tab').forEach(t=>{t.classList.toggle('active',t.dataset.auth===mode);t.classList.toggle('hidden',role==='store'&&t.dataset.auth==='signup')}); $('#name-field').classList.toggle('hidden',mode==='login'); $('#confirm-field').classList.toggle('hidden',mode==='login'); $('#submit-label').textContent = mode==='signup' ? `Create ${role} account` : `Continue to ${role}`; $('#switch-note').innerHTML = role==='store' ? 'Store access is created by your admin.' : (mode==='signup' ? `Already have an account? <button type="button" data-auth-switch="login">Log in instead</button>` : `New here? <button type="button" data-auth-switch="signup">Create a ${role} account</button>`); $('#form-error').textContent=''; }
+function setMode(next) {
+  const previousMode = mode;
+  mode = role === 'store' ? 'login' : next;
+  $$('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.auth === mode);
+    t.classList.toggle('hidden', role === 'store' && t.dataset.auth === 'signup');
+  });
+  $('#name-field').classList.toggle('hidden', mode === 'login');
+  $('#confirm-field').classList.toggle('hidden', mode === 'login');
+  $('#submit-label').textContent = mode === 'signup' ? `Create ${role} account` : `Continue to ${role}`;
+  $('#switch-note').innerHTML = role === 'store' ? 'Store access is created by your admin.' : (mode === 'signup' ? `Already have an account? <button type="button" data-auth-switch="login">Log in instead</button>` : `New here? <button type="button" data-auth-switch="signup">Create a ${role} account</button>`);
+  $('#form-error').textContent = '';
+
+  // Replay a directional slide every time the user switches between login and signup.
+  if (previousMode !== mode) {
+    const card = $('.auth-card');
+    card.classList.remove('slide-next', 'slide-previous');
+    void card.offsetWidth;
+    card.classList.add(mode === 'signup' ? 'slide-next' : 'slide-previous');
+  }
+}
 function setRole(next) { role=next; $$('.role-card').forEach(c=>c.classList.toggle('selected',c.dataset.role===role)); $('.selected-role-label').textContent=role[0].toUpperCase()+role.slice(1); setMode('login'); $('#auth-form').reset(); }
 $$('.role-card').forEach(c=>c.addEventListener('click',()=>setRole(c.dataset.role)));
 $$('.tab').forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.auth)));
