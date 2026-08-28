@@ -40,16 +40,63 @@ function openDashboard(user,currentRole){
   if(currentRole==='admin') renderAdminDashboard(user);
   else renderStoreDashboard(user);
 }
+let shell=null;                       // reference to the currently mounted admin shell
+let shellNavBound=false;              // ensure document-level listeners attach only once
+
+function isMobileNav(){ return window.innerWidth<=800; }
+function openSidebar(){ if(!shell)return; shell.sidebar.classList.add('open'); shell.toggle.setAttribute('aria-expanded','true'); document.body.classList.add('nav-open'); }
+function closeSidebar(){ if(!shell)return; shell.sidebar.classList.remove('open'); shell.toggle.setAttribute('aria-expanded','false'); document.body.classList.remove('nav-open'); }
+function closeUserMenu(){ if(!shell)return; shell.userMenu.classList.add('hidden'); }
+
+// Document-level listeners attached once; they operate on the live `shell`.
+if(!shellNavBound){
+  shellNavBound=true;
+  document.addEventListener('click',(e)=>{
+    if(!shell)return;
+    const {sidebar,toggle,userMenu,backdrop}=shell;
+    // Tapping the backdrop closes the mobile menu.
+    if(e.target===backdrop) return closeSidebar();
+    // Tapping outside the open mobile sidebar closes it.
+    if(isMobileNav()&&sidebar.classList.contains('open')&&!sidebar.contains(e.target)&&!toggle.contains(e.target)) closeSidebar();
+    // Tapping outside the user menu closes it.
+    if(!userMenu.classList.contains('hidden')&&!userMenu.contains(e.target)&&!e.target.closest('#admin-user')) closeUserMenu();
+  });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeSidebar(); closeUserMenu(); } });
+}
+
 function renderAdminDashboard(user){
   const stores=get('enterprise_stores');
-  dashView.innerHTML=`<div class="admin-layout"><aside class="admin-sidebar" id="admin-sidebar"><div class="sidebar-brand"><span class="brand-mark">ED</span><div class="sidebar-brand-copy"><strong>Enterprises</strong><small>Dashboard</small></div></div><nav class="side-nav"><span class="nav-label">WORKSPACE</span><button class="side-link active" data-page="dashboard"><span>▦</span> Dashboard</button><button class="side-link" data-page="quotations"><span>⌁</span> Quotations</button><button class="side-link" data-page="catalog"><span>◈</span> Product catalog</button><button class="side-link" data-page="stores"><span>⌂</span> Stores</button><span class="nav-label nav-label-spaced">SYSTEM</span><button class="side-link" data-page="settings"><span>⚙</span> Settings</button><button class="side-link" data-page="backup"><span>↥</span> Backup</button></nav><div class="sidebar-bottom"><span class="status-dot"></span> All systems operational</div></aside><div class="admin-content"><header class="admin-topbar"><button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">☰</button><div class="dashboard-brand"><span class="brand-mark">ED</span><strong>Enterprises Dashboard</strong></div><div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="breadcrumb-page">Dashboard</strong></div><div class="admin-user-wrap"><button class="admin-user" id="admin-user"><span class="user-avatar">${user.name[0].toUpperCase()}</span><span class="user-copy"><strong>${user.name}</strong><small>Administrator</small></span><span class="user-chevron">⌄</span></button><div class="user-menu hidden" id="user-menu"><strong>${user.name}</strong><small>${user.email}</small><button id="logout">Log out ↗</button></div></div></header><main class="admin-main" id="admin-main"></main></div></div>`;
+  dashView.innerHTML=`<div class="admin-layout"><div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div><aside class="admin-sidebar" id="admin-sidebar"><div class="sidebar-brand"><span class="brand-mark">ED</span><div class="sidebar-brand-copy"><strong>Enterprises</strong><small>Dashboard</small></div></div><nav class="side-nav" aria-label="Admin navigation"><span class="nav-label">WORKSPACE</span><button class="side-link active" data-page="dashboard"><span>▦</span> Dashboard</button><button class="side-link" data-page="quotations"><span>⌁</span> Quotations</button><button class="side-link" data-page="catalog"><span>◈</span> Product catalog</button><button class="side-link" data-page="stores"><span>⌂</span> Stores</button><span class="nav-label nav-label-spaced">SYSTEM</span><button class="side-link" data-page="settings"><span>⚙</span> Settings</button><button class="side-link" data-page="backup"><span>↥</span> Backup</button></nav><div class="sidebar-bottom"><span class="status-dot"></span> All systems operational</div></aside><div class="admin-content"><header class="admin-topbar"><button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu" aria-controls="admin-sidebar" aria-expanded="false"><span class="menu-icon"><span></span></span></button><div class="dashboard-brand"><span class="brand-mark">ED</span><strong>Enterprises Dashboard</strong></div><div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="breadcrumb-page">Dashboard</strong></div><div class="admin-user-wrap"><button class="admin-user" id="admin-user" aria-haspopup="true" aria-expanded="false"><span class="user-avatar">${user.name[0].toUpperCase()}</span><span class="user-copy"><strong>${user.name}</strong><small>Administrator</small></span><span class="user-chevron">⌄</span></button><div class="user-menu hidden" id="user-menu"><strong>${user.name}</strong><small>${user.email}</small><button id="logout">Log out ↗</button></div></div></header><main class="admin-main" id="admin-main"></main></div></div>`;
+
+  const sidebar=$('#admin-sidebar'), toggle=$('#menu-toggle'), backdrop=$('#nav-backdrop'),
+        userBtn=$('#admin-user'), userMenu=$('#user-menu');
+  shell={sidebar,toggle,backdrop,userBtn,userMenu};
+
   renderAdminPage('dashboard',user);
-  $$('.side-link').forEach(link=>link.addEventListener('click',()=>{ $$('.side-link').forEach(item=>item.classList.remove('active'));link.classList.add('active');renderAdminPage(link.dataset.page,user);if(window.innerWidth<=800)$('#admin-sidebar').classList.remove('open'); }));
-  $('#menu-toggle').addEventListener('click',()=>{const sidebar=$('#admin-sidebar');if(window.innerWidth<=800){sidebar.classList.toggle('open')}else{sidebar.classList.toggle('collapsed')}});
-  window.addEventListener('resize',()=>{const sidebar=$('#admin-sidebar');if(!sidebar)return;sidebar.classList.remove('open');});
-  document.addEventListener('click',function shellClose(e){const sidebar=$('#admin-sidebar');const toggle=$('#menu-toggle');if(window.innerWidth<=800&&sidebar&&!sidebar.contains(e.target)&&!toggle.contains(e.target))sidebar.classList.remove('open')});
-  $('#admin-user').addEventListener('click',()=>$('#user-menu').classList.toggle('hidden'));
-  $('#logout').addEventListener('click',()=>{document.querySelector('.app-shell').classList.remove('admin-mode');dashView.classList.add('hidden');authView.classList.remove('hidden');showToast('You have been logged out')});
+
+  // Nav links: switch page, close the mobile drawer, and auto-close the user dropdown.
+  $$('.side-link').forEach(link=>link.addEventListener('click',()=>{
+    $$('.side-link').forEach(item=>item.classList.remove('active'));
+    link.classList.add('active');
+    renderAdminPage(link.dataset.page,user);
+    closeSidebar();
+  }));
+
+  toggle.addEventListener('click',(e)=>{ e.stopPropagation();
+    if(isMobileNav()){ sidebar.classList.contains('open')?closeSidebar():openSidebar(); }
+    else { sidebar.classList.toggle('collapsed'); }
+  });
+
+  userBtn.addEventListener('click',(e)=>{ e.stopPropagation();
+    const opening=userMenu.classList.contains('hidden');
+    userMenu.classList.toggle('hidden');
+    userBtn.setAttribute('aria-expanded',opening?'true':'false');
+  });
+
+  $('#logout').addEventListener('click',()=>{ document.querySelector('.app-shell').classList.remove('admin-mode');dashView.classList.add('hidden');authView.classList.remove('hidden');showToast('You have been logged out'); closeSidebar(); });
+
+  // Keep the off-canvas drawer closed on resize up to desktop.
+  window.addEventListener('resize',()=>{ if(!isMobileNav()){ sidebar.classList.remove('open'); document.body.classList.remove('nav-open'); } });
 }
 function renderAdminPage(page,user){
   const main=$('#admin-main'),stores=get('enterprise_stores');$('#breadcrumb-page').textContent=page==='catalog'?'Product catalog':page[0].toUpperCase()+page.slice(1);
