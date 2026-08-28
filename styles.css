@@ -71,3 +71,22 @@
 .admin-sidebar{transition:width .3s ease,flex-basis .3s ease,padding .3s ease,transform .28s ease}
 .admin-sidebar.collapsed{width:0;flex-basis:0;padding-left:0;padding-right:0;overflow:hidden}
 @media(max-width:800px){.admin-sidebar.collapsed{width:235px;flex-basis:auto;padding:28px 15px 20px;overflow:visible}.admin-topbar .menu-toggle{margin-right:13px}}
+/* Bosch x Siemens inspired appliance palette: graphite, stainless steel, Bosch red and Siemens blue. */
+:root{--ink:#20272b;--muted:#6e797e;--line:#d9e0e3;--paper:#f4f6f7;--card:#fff;--mint:#e4f0f3;--green:#006b86;--lime:#d71920;--orange:#d97542}
+body{background:var(--paper);color:var(--ink)}
+.brand-panel,.admin-sidebar{background:#20272b}
+.brand-mark{background:#d71920;color:#fff}
+.brand-panel:after{border-color:rgba(0,157,184,.25);box-shadow:0 0 0 55px rgba(0,157,184,.035),0 0 0 110px rgba(0,157,184,.025)}
+h1 em{color:#5fc1d3}
+.role-card:hover,.role-card.selected{border-color:#8cc5d1;background:#eaf5f7}
+.admin-icon{background:#e1f1f4;color:#006b86}.store-icon{background:#fbe5e3;color:#b3262c}
+.primary-button{background:#d71920}.primary-button:hover{background:#b9141b}
+.small-button{background:#d71920;color:#fff}.small-button:hover{background:#b9141b}
+.side-link.active{background:#d71920;color:#fff}.side-link:hover{background:#eaf5f7;color:#006b86}.side-link.active span{color:#fff}.side-link:hover span{color:#006b86}
+.admin-topbar .menu-toggle{background:#e4f0f3;color:#006b86}.admin-topbar .menu-toggle:hover{background:#d71920;color:#fff}
+.stat-icon.green{background:#e1f1f4;color:#006b86}.stat-icon.orange{background:#fbe5e3;color:#b3262c}.stat-icon.purple{background:#e9e7f4;color:#5b568c}.stat-icon.blue{background:#e1f1f4;color:#006b86}
+.badge{background:#e1f1f4;color:#006b86}.outline-button{border-color:#9ac5cf;color:#006b86}.text-button{color:#006b86}
+.activity-empty span,.placeholder-icon{background:#e1f1f4;color:#006b86}
+.user-avatar,.store-avatar{background:#e1f1f4;color:#006b86}
+.status-dot{background:#5fc1d3}.accent{color:#006b86}
+input:focus{border-color:#54aabc;box-shadow:0 0 0 3px #e1f1f4}
