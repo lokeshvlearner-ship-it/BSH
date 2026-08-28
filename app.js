@@ -47,6 +47,7 @@ function isMobileNav(){ return window.innerWidth<=800; }
 function openSidebar(){ if(!shell)return; shell.sidebar.classList.add('open'); shell.toggle.setAttribute('aria-expanded','true'); document.body.classList.add('nav-open'); }
 function closeSidebar(){ if(!shell)return; shell.sidebar.classList.remove('open'); shell.toggle.setAttribute('aria-expanded','false'); document.body.classList.remove('nav-open'); }
 function closeUserMenu(){ if(!shell)return; shell.userMenu.classList.add('hidden'); }
+function closeAppMenu(){ if(!shell)return; shell.appMenu.classList.add('hidden'); if(shell.getAppBtn)shell.getAppBtn.setAttribute('aria-expanded','false'); }
 
 // Document-level listeners attached once; they operate on the live `shell`.
 if(!shellNavBound){
@@ -60,17 +61,33 @@ if(!shellNavBound){
     if(isMobileNav()&&sidebar.classList.contains('open')&&!sidebar.contains(e.target)&&!toggle.contains(e.target)) closeSidebar();
     // Tapping outside the user menu closes it.
     if(!userMenu.classList.contains('hidden')&&!userMenu.contains(e.target)&&!e.target.closest('#admin-user')) closeUserMenu();
+    // Tapping outside the app menu closes it.
+    if(appMenu&&!appMenu.classList.contains('hidden')&&!appMenu.contains(e.target)&&!e.target.closest('#get-app')) closeAppMenu();
   });
-  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeSidebar(); closeUserMenu(); } });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeSidebar(); closeUserMenu(); closeAppMenu(); } });
 }
 
 function renderAdminDashboard(user){
   const stores=get('enterprise_stores');
-  dashView.innerHTML=`<div class="admin-layout"><div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div><aside class="admin-sidebar" id="admin-sidebar"><div class="sidebar-brand"><span class="brand-mark">ED</span><div class="sidebar-brand-copy"><strong>Enterprises</strong><small>Dashboard</small></div></div><nav class="side-nav" aria-label="Admin navigation"><span class="nav-label">WORKSPACE</span><button class="side-link active" data-page="dashboard"><span>▦</span> Dashboard</button><button class="side-link" data-page="quotations"><span>⌁</span> Quotations</button><button class="side-link" data-page="catalog"><span>◈</span> Product catalog</button><button class="side-link" data-page="stores"><span>⌂</span> Stores</button><span class="nav-label nav-label-spaced">SYSTEM</span><button class="side-link" data-page="settings"><span>⚙</span> Settings</button><button class="side-link" data-page="backup"><span>↥</span> Backup</button></nav><div class="sidebar-bottom"><span class="status-dot"></span> All systems operational</div></aside><div class="admin-content"><header class="admin-topbar"><button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu" aria-controls="admin-sidebar" aria-expanded="false"><span class="menu-icon"><span></span></span></button><div class="dashboard-brand"><span class="brand-mark">ED</span><strong>Enterprises Dashboard</strong></div><div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="breadcrumb-page">Dashboard</strong></div><div class="admin-user-wrap"><button class="admin-user" id="admin-user" aria-haspopup="true" aria-expanded="false"><span class="user-avatar">${user.name[0].toUpperCase()}</span><span class="user-copy"><strong>${user.name}</strong><small>Administrator</small></span><span class="user-chevron">⌄</span></button><div class="user-menu hidden" id="user-menu"><strong>${user.name}</strong><small>${user.email}</small><button id="logout">Log out ↗</button></div></div></header><main class="admin-main" id="admin-main"></main></div></div>`;
+  dashView.innerHTML=`<div class="admin-layout"><div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div><aside class="admin-sidebar" id="admin-sidebar"><div class="sidebar-brand"><span class="brand-mark">ED</span><div class="sidebar-brand-copy"><strong>Enterprises</strong><small>Dashboard</small></div></div><nav class="side-nav" aria-label="Admin navigation"><span class="nav-label">WORKSPACE</span><button class="side-link active" data-page="dashboard"><span>▦</span> Dashboard</button><button class="side-link" data-page="quotations"><span>⌁</span> Quotations</button><button class="side-link" data-page="catalog"><span>◈</span> Product catalog</button><button class="side-link" data-page="stores"><span>⌂</span> Stores</button><span class="nav-label nav-label-spaced">SYSTEM</span><button class="side-link" data-page="settings"><span>⚙</span> Settings</button><button class="side-link" data-page="backup"><span>↥</span> Backup</button></nav><div class="sidebar-bottom"><span class="status-dot"></span> All systems operational</div></aside><div class="admin-content"><header class="admin-topbar"><button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu" aria-controls="admin-sidebar" aria-expanded="false"><span class="menu-icon"><span></span></span></button><div class="dashboard-brand"><span class="brand-mark">ED</span><strong>Enterprises Dashboard</strong></div><div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="breadcrumb-page">Dashboard</strong></div><div class="admin-actions"><div class="app-menu-wrap"><button class="get-app" id="get-app" aria-haspopup="true" aria-expanded="false">⤓<span>Get the app</span></button><div class="app-menu hidden" id="app-menu"><strong>Get Enterprises Dashboard</strong><small>Install or download the app to your device.</small><button id="app-install"><span>⬇</span> Install on this device</button><a id="app-apk" href="https://github.com/lokeshvlearner-ship-it/BSH/actions" target="_blank" rel="noopener"><span>📦</span> Download APK (Android)</a></div></div><div class="admin-user-wrap"><button class="admin-user" id="admin-user" aria-haspopup="true" aria-expanded="false"><span class="user-avatar">${user.name[0].toUpperCase()}</span><span class="user-copy"><strong>${user.name}</strong><small>Administrator</small></span><span class="user-chevron">⌄</span></button><div class="user-menu hidden" id="user-menu"><strong>${user.name}</strong><small>${user.email}</small><button id="logout">Log out ↗</button></div></div></div></header><main class="admin-main" id="admin-main"></main></div></div>`;
 
   const sidebar=$('#admin-sidebar'), toggle=$('#menu-toggle'), backdrop=$('#nav-backdrop'),
-        userBtn=$('#admin-user'), userMenu=$('#user-menu');
-  shell={sidebar,toggle,backdrop,userBtn,userMenu};
+        userBtn=$('#admin-user'), userMenu=$('#user-menu'),
+        getAppBtn=$('#get-app'), appMenu=$('#app-menu'), appInstall=$('#app-install');
+  shell={sidebar,toggle,backdrop,userBtn,userMenu,appMenu,getAppBtn};
+
+  // Install prompt (PWA). Stash it so the menu button can trigger the real install.
+  let installPrompt=null;
+  window.addEventListener('beforeinstallprompt',(e)=>{ e.preventDefault(); installPrompt=e; });
+  appInstall.addEventListener('click',(e)=>{ e.stopPropagation();
+    if(installPrompt){ installPrompt.prompt(); installPrompt.userChoice.finally(()=>installPrompt=null); }
+    else { showToast('Open this app in Chrome on Android, then choose "Install app" or "Add to Home screen".'); }
+    closeAppMenu();
+  });
+  getAppBtn.addEventListener('click',(e)=>{ e.stopPropagation();
+    appMenu.classList.toggle('hidden'); closeUserMenu();
+    getAppBtn.setAttribute('aria-expanded',appMenu.classList.contains('hidden')?'false':'true');
+  });
 
   renderAdminPage('dashboard',user);
 
@@ -93,7 +110,7 @@ function renderAdminDashboard(user){
     userBtn.setAttribute('aria-expanded',opening?'true':'false');
   });
 
-  $('#logout').addEventListener('click',()=>{ document.querySelector('.app-shell').classList.remove('admin-mode');dashView.classList.add('hidden');authView.classList.remove('hidden');showToast('You have been logged out'); closeSidebar(); });
+  $('#logout').addEventListener('click',()=>{ document.querySelector('.app-shell').classList.remove('admin-mode');dashView.classList.add('hidden');authView.classList.remove('hidden');showToast('You have been logged out'); closeSidebar(); closeUserMenu(); closeAppMenu(); });
 
   // Keep the off-canvas drawer closed on resize up to desktop.
   window.addEventListener('resize',()=>{ if(!isMobileNav()){ sidebar.classList.remove('open'); document.body.classList.remove('nav-open'); } });

@@ -1,0 +1,25 @@
+{
+  "name": "Enterprises Dashboard",
+  "short_name": "Enterprises",
+  "description": "Retail command center for your store network.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f8fb",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
