@@ -90,3 +90,6 @@ h1 em{color:#5fc1d3}
 .user-avatar,.store-avatar{background:#e1f1f4;color:#006b86}
 .status-dot{background:#5fc1d3}.accent{color:#006b86}
 input:focus{border-color:#54aabc;box-shadow:0 0 0 3px #e1f1f4}
+/* Keep auth-only support links out of the authenticated dashboard. */
+.app-shell.admin-mode>.main-panel>.topbar{display:none}
+.sidebar-brand strong{white-space:nowrap}
